@@ -1,6 +1,13 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createEditor, Descendant } from "slate";
 import { Slate, Editable, withReact } from 'slate-react'
+
+type Note = {
+  id: string,
+  content: string,
+  createdDate: Date,
+  owner: string
+}
 
 const placeholder: any = [
   {
@@ -9,10 +16,13 @@ const placeholder: any = [
   }
 ]
 
-const Editor = () => {
+const Editor = ({activeNote}: {activeNote : string}) => {
   const [editor] = useState(() => withReact(createEditor()))
+  const [text, setText] = useState('')
 
-  const initialValue: any = useMemo(() => JSON.parse(localStorage.getItem('note') ?? JSON.stringify(placeholder)), [])
+  useEffect(() => {
+    setText(activeNote)
+  }, [activeNote])
 
   const onEditorChange = (value: Descendant[]) => {
     const isAstChange = editor.operations.some(
@@ -20,14 +30,15 @@ const Editor = () => {
     )
     if (isAstChange) {
       const note = JSON.stringify(value)
-      localStorage.setItem('note', note)
+      setText(note)
+      localStorage.setItem('activeNote', note)
     }
   }
 
   return (
   <Slate 
     editor={editor} 
-    value={initialValue}
+    value={text}
     onChange={onEditorChange}>
     <Editable 
       style={{
