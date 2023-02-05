@@ -1,8 +1,11 @@
+import { createContext, useContext } from "react"
 import { useState, useEffect } from "react"
 import Note from "../components/types/Note.type"
 import { v4 as uuidv4 } from 'uuid'
 
-const useNote = () => {
+let NotesContext = createContext({} as any)
+
+const NotesProvider = ({children}: {children: any}) => {
   const [notes, setNotes] = useState<Array<Note>>([])
   const [activeNote, setActiveNote] = useState<Note | null>(null)
 
@@ -46,7 +49,22 @@ const useNote = () => {
     localStorage.setItem('notes', JSON.stringify(newNotes))
   }
 
-  return {note: activeNote, createNote, deleteNote, notes}
+  const contextValue = {
+    note: activeNote,
+    notes,
+    createNote,
+    deleteNote,
+  }
+
+  return (
+    <NotesContext.Provider value={contextValue}>
+      {children}
+    </NotesContext.Provider>
+  )
 }
 
-export default useNote
+const useNotesContext = () => {
+  return {...useContext(NotesContext)}
+}
+
+export {useNotesContext, NotesProvider}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import Note from "../../types/Note.type";
+import Note from "../types/Note.type";
 
-const Editor = ({note, createNote}: {note: Note | null, createNote: any}) => {
+const Editor = ({note, notes, createNote}: {note: Note | null, notes: Array<Note>, createNote: any}) => {
   const [editorValue, setEditorValue] = useState('')
 
   useEffect(() => {
@@ -9,9 +9,16 @@ const Editor = ({note, createNote}: {note: Note | null, createNote: any}) => {
   }, [note])
 
   const handleEditorChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const text = e.target.value
-    localStorage.setItem('activeNote', JSON.stringify({...note, content: text}))
-    setEditorValue(text)
+    const content = e.target.value
+    const title = (content.length > 0) ? content.substring(0, 11,) : 'Untitled'
+
+    const newNotes = JSON.parse(localStorage.getItem('notes') ?? '[]')
+    newNotes.splice(notes.findIndex(n => n.id === note?.id), 1, {...note, content, title})
+
+    localStorage.setItem('activeNote', JSON.stringify({...note, content, title}))
+    localStorage.setItem('notes', JSON.stringify(newNotes))
+
+    setEditorValue(content)
   }
 
   if (!note) {

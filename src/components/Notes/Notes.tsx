@@ -1,31 +1,11 @@
 import './Notes.css'
-import Editor from "../Editor/Editor"
-import useNote from "../../hooks/useNote"
+import Note from '../types/Note.type'
 
-const Notes = () => {
-  const {note, createNote, deleteNote} = useNote()
-
+const Notes = ({notes}: {notes: Array<Note>}) => {
   return (
-    <>
-      <div className='grid'>
-        <div id="header">
-          <h1>Notes</h1>
-        </div>
-        <div id='noteslist'>
-          <ul>
-            <li>note1</li>
-            <li>note2</li>
-          </ul>
-        </div>
-        <div id='editor'>
-          {<Editor note={note} createNote={createNote}/>}
-        </div>
-        <div className='buttons'>
-          <button onClick={createNote}>Create Note</button>
-          <button onClick={deleteNote}>Delete Note</button>        
-        </div>
-      </div>
-    </>
+    <ul id='notes-list'>
+      {notes.map(note => <li key={note.id}>{note.title + '...'}</li>)}
+    </ul>
   )
 }
 
