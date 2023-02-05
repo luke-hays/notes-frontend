@@ -1,19 +1,15 @@
 import { useEffect, useState } from "react";
-import useNote from "../../hooks/useNote";
+import Note from "../types/Note.type";
 
-const Editor = () => {
-  const {note, createNote} = useNote()
+const Editor = ({note, createNote}: {note: Note | null, createNote: any}) => {
   const [editorValue, setEditorValue] = useState('')
 
   useEffect(() => {
-    if (note) {
-      setEditorValue(note.content)
-    }
+    if (note) setEditorValue(note.content)
   }, [note])
 
   const handleEditorChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const text = e.target.value
-    
     localStorage.setItem('activeNote', JSON.stringify({...note, content: text}))
     setEditorValue(text)
   }

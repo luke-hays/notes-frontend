@@ -3,7 +3,7 @@ import Editor from "../Editor/Editor"
 import useNote from "../../hooks/useNote"
 
 const Notes = () => {
-  const {createNote, deleteNote} = useNote()
+  const {note, createNote, deleteNote} = useNote()
 
   return (
     <>
@@ -18,7 +18,7 @@ const Notes = () => {
           </ul>
         </div>
         <div id='editor'>
-          {<Editor />}
+          {<Editor note={note} createNote={createNote}/>}
         </div>
         <div className='buttons'>
           <button onClick={createNote}>Create Note</button>
