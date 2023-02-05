@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react"
 import { useState, useEffect } from "react"
-import Note from "../components/types/Note.type"
+import Note from "../types/Note.type"
 import { v4 as uuidv4 } from 'uuid'
 
 let NotesContext = createContext({} as any)
@@ -54,6 +54,9 @@ const NotesProvider = ({children}: {children: any}) => {
     notes,
     createNote,
     deleteNote,
+    setNote: setActiveNote,
+    setNotes
+
   }
 
   return (
@@ -64,7 +67,9 @@ const NotesProvider = ({children}: {children: any}) => {
 }
 
 const useNotesContext = () => {
-  return {...useContext(NotesContext)}
+  const context = useContext(NotesContext)
+  if (!context) throw new Error('Unable to retrieve notes context')
+  return context
 }
 
 export {useNotesContext, NotesProvider}

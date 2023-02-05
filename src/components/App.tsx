@@ -1,10 +1,10 @@
 import './App.css'
-import useNote from "../hooks/useNote"
 import Editor from "./Editor/Editor"
 import Notes from './Notes/Notes'
+import {useNotesContext } from '../hooks/useNotesContext'
 
 const App = () => {
-  const {note, notes, createNote, deleteNote} = useNote()
+  const {createNote, deleteNote} = useNotesContext()
 
   return (
     <>
@@ -13,14 +13,14 @@ const App = () => {
           <h1>Notes</h1>
         </div>
         <div id='noteslist'>
-          <Notes notes={notes}/>
+          <Notes />
         </div>
         <div id='editor'>
-          {<Editor note={note} notes={notes} createNote={createNote}/>}
+          {<Editor />}
         </div>
         <div className='buttons'>
-          <button onClick={createNote}>Create Note</button>
-          <button onClick={deleteNote}>Delete Note</button>        
+          <button onClick={() => createNote()}>Create Note</button>
+          <button onClick={() => deleteNote()}>Delete Note</button>        
         </div>
       </div>
     </>
