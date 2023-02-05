@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import Note from "../components/types/Note.type"
+import Note from "../types/Note.type"
 import { v4 as uuidv4 } from 'uuid'
 
 const useNote = () => {

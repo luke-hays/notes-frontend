@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Note from "../types/Note.type";
+import Note from "../../types/Note.type";
 
 const Editor = ({note, createNote}: {note: Note | null, createNote: any}) => {
   const [editorValue, setEditorValue] = useState('')
