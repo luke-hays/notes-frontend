@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { createEditor, Descendant } from "slate";
-import { Slate, Editable, withReact } from 'slate-react'
+import { useEffect, useState } from "react";
+import { v4 as uuidv4 } from 'uuid'
 
 type Note = {
   id: string,
@@ -9,45 +8,56 @@ type Note = {
   owner: string
 }
 
-const placeholder: any = [
-  {
-    type: 'paragraph',
-    children: [{ text: 'A line of text in a paraghraph' }]
-  }
-]
-
-const Editor = ({activeNote}: {activeNote : string}) => {
-  const [editor] = useState(() => withReact(createEditor()))
-  const [text, setText] = useState('')
+const Editor = ({note, setActiveNote}: {note: Note, setActiveNote: any}) => {
+  const [editorValue, setEditorValue] = useState('')
 
   useEffect(() => {
-    setText(activeNote)
-  }, [activeNote])
-
-  const onEditorChange = (value: Descendant[]) => {
-    const isAstChange = editor.operations.some(
-      op => 'set_selection' !== op.type
-    )
-    if (isAstChange) {
-      const note = JSON.stringify(value)
-      setText(note)
-      localStorage.setItem('activeNote', note)
+    if (note) {
+      setEditorValue(note.content)
     }
+  }, [note])
+
+  const handleEditorChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const text = e.target.value
+    
+    localStorage.setItem('activeNote', JSON.stringify({...note, content: text}))
+    setEditorValue(text)
+  }
+
+    // create should bring up a new note editor and add one to a list
+    const createNote = () => {
+      const newNote: Note = {
+        id: uuidv4(),
+        content: '',
+        createdDate: new Date(),
+        owner: 'user'
+      }
+  
+      localStorage.setItem('activeNote', JSON.stringify(newNote))
+      setActiveNote(newNote)
+    }
+
+  if (!note) {
+    return (
+      <textarea
+        rows={10} 
+        cols={30}
+        value=''
+        placeholder='Click create to begin...'
+        onFocus={() => {createNote()}}
+        readOnly>
+      </textarea>  
+    )
   }
 
   return (
-  <Slate 
-    editor={editor} 
-    value={text}
-    onChange={onEditorChange}>
-    <Editable 
-      style={{
-        border: '1px solid black',
-        maxWidth: '600px',
-        minHeight: '500px',
-      }}
-    />
-  </Slate>
+    <textarea
+      rows={10} 
+      cols={30} 
+      value={editorValue}
+      onChange={(e) => handleEditorChange(e)}
+      placeholder='Begin typing a note...'>
+    </textarea>
   )
 }
 

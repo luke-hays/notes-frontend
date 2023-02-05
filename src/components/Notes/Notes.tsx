@@ -1,7 +1,7 @@
-import { useState } from "react"
-import Editor from "../Editor/Editor"
-import './Notes.css'
+import { useEffect, useState } from "react"
 import { v4 as uuidv4 } from 'uuid'
+import './Notes.css'
+import Editor from "../Editor/Editor"
 
 type Note = {
   id: string,
@@ -10,18 +10,16 @@ type Note = {
   owner: string
 }
 
-const placeholder: any = [
-  {
-    type: 'paragraph',
-    children: [{ text: '' }]
-  }
-]
-
 const Notes = () => {
   const [activeNote, setActiveNote] = useState<any>(null)
 
+  useEffect(() => {
+    let note = localStorage.getItem('activeNote')
+    if (note) setActiveNote(JSON.parse(note))
+  }, [])
+
   // create should bring up a new note editor and add one to a list
-  const onClickCreate = () => {
+  const createNote = () => {
     const newNote: Note = {
       id: uuidv4(),
       content: '',
@@ -29,17 +27,11 @@ const Notes = () => {
       owner: 'user'
     }
 
-    localStorage.setItem('activeNote', '')
-
-    setActiveNote(JSON.stringify([
-      {
-        type: 'paragraph',
-        children: [{ text: '' }]
-      }
-    ]))
+    localStorage.setItem('activeNote', JSON.stringify(newNote))
+    setActiveNote(newNote)
   }
 
-  const onClickDelete = () => {
+  const deleteNote = () => {
     localStorage.removeItem('activeNote')
     setActiveNote(null)
   }
@@ -57,11 +49,11 @@ const Notes = () => {
           </ul>
         </div>
         <div id='editor'>
-          {activeNote && <Editor activeNote={activeNote}/>}
+          {<Editor note={activeNote} setActiveNote={setActiveNote}/>}
         </div>
         <div className='buttons'>
-          <button onClick={onClickCreate}>Create Note</button>
-          <button onClick={onClickDelete}>Delete Note</button>        
+          <button onClick={createNote}>Create Note</button>
+          <button onClick={deleteNote}>Delete Note</button>        
         </div>
       </div>
     </>
