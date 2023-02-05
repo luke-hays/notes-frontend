@@ -1,14 +1,8 @@
 import { useEffect, useState } from "react";
-import { v4 as uuidv4 } from 'uuid'
+import useNote from "../../hooks/useNote";
 
-type Note = {
-  id: string,
-  content: string,
-  createdDate: Date,
-  owner: string
-}
-
-const Editor = ({note, setActiveNote}: {note: Note, setActiveNote: any}) => {
+const Editor = () => {
+  const {note, createNote} = useNote()
   const [editorValue, setEditorValue] = useState('')
 
   useEffect(() => {
@@ -23,19 +17,6 @@ const Editor = ({note, setActiveNote}: {note: Note, setActiveNote: any}) => {
     localStorage.setItem('activeNote', JSON.stringify({...note, content: text}))
     setEditorValue(text)
   }
-
-    // create should bring up a new note editor and add one to a list
-    const createNote = () => {
-      const newNote: Note = {
-        id: uuidv4(),
-        content: '',
-        createdDate: new Date(),
-        owner: 'user'
-      }
-  
-      localStorage.setItem('activeNote', JSON.stringify(newNote))
-      setActiveNote(newNote)
-    }
 
   if (!note) {
     return (

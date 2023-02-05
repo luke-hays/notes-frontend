@@ -1,41 +1,10 @@
-import { useEffect, useState } from "react"
-import { v4 as uuidv4 } from 'uuid'
 import './Notes.css'
 import Editor from "../Editor/Editor"
-
-type Note = {
-  id: string,
-  content: string,
-  createdDate: Date,
-  owner: string
-}
+import useNote from "../../hooks/useNote"
 
 const Notes = () => {
-  const [activeNote, setActiveNote] = useState<any>(null)
+  const {createNote, deleteNote} = useNote()
 
-  useEffect(() => {
-    let note = localStorage.getItem('activeNote')
-    if (note) setActiveNote(JSON.parse(note))
-  }, [])
-
-  // create should bring up a new note editor and add one to a list
-  const createNote = () => {
-    const newNote: Note = {
-      id: uuidv4(),
-      content: '',
-      createdDate: new Date(),
-      owner: 'user'
-    }
-
-    localStorage.setItem('activeNote', JSON.stringify(newNote))
-    setActiveNote(newNote)
-  }
-
-  const deleteNote = () => {
-    localStorage.removeItem('activeNote')
-    setActiveNote(null)
-  }
-  
   return (
     <>
       <div className='grid'>
@@ -49,7 +18,7 @@ const Notes = () => {
           </ul>
         </div>
         <div id='editor'>
-          {<Editor note={activeNote} setActiveNote={setActiveNote}/>}
+          {<Editor />}
         </div>
         <div className='buttons'>
           <button onClick={createNote}>Create Note</button>
