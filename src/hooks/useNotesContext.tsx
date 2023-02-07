@@ -51,6 +51,7 @@ const NotesProvider = ({children}: {children: any}) => {
 
   const contextValue = {
     note: activeNote,
+    setActiveNote,
     notes,
     createNote,
     deleteNote,

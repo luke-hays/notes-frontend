@@ -1,0 +1,14 @@
+#notes-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 10px
+}
+
+#notes-list li {
+  transition: 0.4s;
+  border-bottom: 1px solid rgb(227, 227, 228);
+}
+
+#notes-list li:hover {
+  background: rgb(240, 240, 240);
+}
