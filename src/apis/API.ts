@@ -1,15 +1,15 @@
 import axios, { AxiosRequestConfig } from "axios";
-import { Type } from "typescript";
 
 type AxiosVerb = {
   url: string,
-  data: Type,
+  data: any,
   config: AxiosRequestConfig | undefined
 }
 
 const GET = async (args: AxiosVerb) => (
   await axios.get(args.url, args.config)
     .then(response => {
+      console.log('GET response', response)
       console.log(response)
     })
     .catch(error => {
@@ -20,6 +20,7 @@ const GET = async (args: AxiosVerb) => (
 const POST = async (args: AxiosVerb) => (
   await axios.post(args.url, args.data, args.config)
     .then(response => {
+      console.log('POST response', response)
       console.log(response)
     })
     .catch(error => {
@@ -30,6 +31,7 @@ const POST = async (args: AxiosVerb) => (
 const PATCH = async (args: AxiosVerb) => (
   await axios.post(args.url, args.data, args.config)
     .then(response => {
+      console.log('PATCH response', response)
       console.log(response)
     })
     .catch(error => {
@@ -38,8 +40,9 @@ const PATCH = async (args: AxiosVerb) => (
 )
 
 const DELETE = async (args: AxiosVerb) => (
-  await axios.get(args.url, args.config)
+  await axios.delete(args.url, args.config)
     .then(response => {
+      console.log('DELETE response', response)
       console.log(response)
     })
     .catch(error => {

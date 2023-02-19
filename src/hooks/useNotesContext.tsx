@@ -2,12 +2,14 @@ import { createContext, useContext } from "react"
 import { useState, useEffect } from "react"
 import Note from "../types/Note.type"
 import { v4 as uuidv4 } from 'uuid'
+import * as request from "../apis/notes"
 
 let NotesContext = createContext({} as any)
 
 const NotesProvider = ({children}: {children: any}) => {
   const [notes, setNotes] = useState<Array<Note>>([])
   const [activeNote, setActiveNote] = useState<Note | null>(null)
+  const [pendingRequests, setPendingRequests] = useState(new Set())
 
   useEffect(() => {
     let note = localStorage.getItem('activeNote')
@@ -21,7 +23,37 @@ const NotesProvider = ({children}: {children: any}) => {
     }
   }, [])
 
-  const createNote = () => {
+  const addPendingRequest = (key: string) => {
+    let requests = new Set(pendingRequests)
+    pendingRequests.add(key)
+    setPendingRequests(requests)
+  }
+  
+  const removePendingRequest = (key: string) => {
+    let requests = new Set(pendingRequests)
+    pendingRequests.delete(key)
+    setPendingRequests(requests)
+  }
+
+  const sendRequest = async (key: string, request: any) => {
+    addPendingRequest(key)
+    await request()
+    removePendingRequest(key)
+  }
+
+  const getNote = async (noteID: string) => {
+    await sendRequest('getNote', () => request.getNote(noteID))
+  }
+
+  const getAllNotes = async () => {
+    await sendRequest('getNotes', () => request.getNotes(''))
+  }
+
+  const updateNote = async (noteID: string, data: any) => {
+    await sendRequest('updateNote', () => request.updateNote('', null))
+  }
+
+  const createNote = async () => {
     const newNote: Note = {
       id: uuidv4(),
       content: '',
@@ -29,6 +61,9 @@ const NotesProvider = ({children}: {children: any}) => {
       owner: 'user',
       title: ''
     }
+
+    await sendRequest('createNote', () => request.createNote(newNote))
+
     const newNotes = [...notes, newNote]
 
     setActiveNote(newNote)
@@ -38,7 +73,11 @@ const NotesProvider = ({children}: {children: any}) => {
     localStorage.setItem('notes', JSON.stringify(newNotes))
   }
 
-  const deleteNote = () => {
+  const deleteNote = async () => {
+    if (!activeNote) return
+    
+    await sendRequest('deleteNote', () => request.deleteNote(activeNote.id))
+
     const newNotes = [...notes]
     newNotes.splice(notes.findIndex(note => note.id === activeNote?.id), 1)
 
@@ -53,6 +92,9 @@ const NotesProvider = ({children}: {children: any}) => {
     note: activeNote,
     setActiveNote,
     notes,
+    getNote,
+    getAllNotes,
+    updateNote,
     createNote,
     deleteNote,
     setNote: setActiveNote,
