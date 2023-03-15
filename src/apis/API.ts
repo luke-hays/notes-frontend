@@ -6,44 +6,44 @@ type AxiosVerb = {
   config: AxiosRequestConfig | undefined
 }
 
-const GET = async (args: AxiosVerb) => (
+const GET = async (args: AxiosVerb) : Promise<any> => (
   await axios.get(args.url, args.config)
     .then(response => {
       console.log('GET response', response)
-      console.log(response)
+      return response
     })
     .catch(error => {
       console.log(error)
     })
 )
 
-const POST = async (args: AxiosVerb) => (
+const POST = async (args: AxiosVerb) : Promise<any> => (
   await axios.post(args.url, args.data, args.config)
     .then(response => {
       console.log('POST response', response)
-      console.log(response)
+      return response
     })
     .catch(error => {
       console.log(error)
     })
 )
 
-const PATCH = async (args: AxiosVerb) => (
-  await axios.post(args.url, args.data, args.config)
+const PATCH = async (args: AxiosVerb) : Promise<any> => (
+  await axios.patch(args.url, args.data, args.config)
     .then(response => {
       console.log('PATCH response', response)
-      console.log(response)
+      return response
     })
     .catch(error => {
       console.log(error)
     })
 )
 
-const DELETE = async (args: AxiosVerb) => (
-  await axios.delete(args.url, args.config)
+const DELETE = async (args: AxiosVerb) : Promise<any> => (
+  await axios.delete(args.url, { data: args.data })
     .then(response => {
       console.log('DELETE response', response)
-      console.log(response)
+      return response
     })
     .catch(error => {
       console.log(error)

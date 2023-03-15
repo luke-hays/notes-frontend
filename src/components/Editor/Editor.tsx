@@ -1,31 +1,31 @@
+import { useCallback, useEffect, useState } from "react";
 import { useNotesContext } from "../../hooks/useNotesContext";
 
 const Editor = () => {
-  const {note, notes, createNote, setNote, setNotes} = useNotesContext()
+  const {activeNote, modifyNote} = useNotesContext()
+  const [textContent, setTextContent] = useState('')
+  const [debouceValue, setDebounceValue] = useState('')
 
-  const handleEditorChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const content = e.target.value
-    const title = (content.length > 0) ? content.substring(0, 11,) : 'Untitled'
+  useEffect(() => {
+    setTextContent(activeNote?.content ?? '')
+  }, [activeNote])
 
-    const newNote = {...note, content, title}
-    const newNotes = JSON.parse(localStorage.getItem('notes') ?? '[]')
-    newNotes.splice(notes.findIndex((n: { id: any; }) => n.id === note?.id), 1, {...note, content, title})
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounceValue(textContent), 500)
+    return () => clearTimeout(timer)
+  }, [textContent])
 
-    localStorage.setItem('activeNote', JSON.stringify({...note, content, title}))
-    localStorage.setItem('notes', JSON.stringify(newNotes))
+  useEffect(() => {
+    modifyNote(debouceValue)
+  }, [debouceValue])
 
-    setNote(newNote)
-    setNotes(newNotes)
-  }
-
-  if (!note) {
+  if (!activeNote) {
     return (
       <textarea
         rows={10} 
         cols={30}
         value=''
         placeholder='Click create to begin...'
-        onFocus={() => {createNote()}}
         readOnly>
       </textarea>  
     )
@@ -35,8 +35,8 @@ const Editor = () => {
     <textarea
       rows={10} 
       cols={30} 
-      value={note.content}
-      onChange={(e) => handleEditorChange(e)}
+      value={textContent}
+      onChange={(e) => setTextContent(e.target.value)}
       placeholder='Begin typing a note...'>
     </textarea>
   )

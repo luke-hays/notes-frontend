@@ -4,7 +4,9 @@ import Notes from './Notes/Notes'
 import {useNotesContext } from '../hooks/useNotesContext'
 
 const App = () => {
-  const {createNote, deleteNote} = useNotesContext()
+  const {addNote, removeNote, updatingNote, loading, activeNote} = useNotesContext()
+
+  const activeNoteUnavailable = !activeNote|| updatingNote
 
   return (
     <>
@@ -19,8 +21,8 @@ const App = () => {
           {<Editor />}
         </div>
         <div className='buttons'>
-          <button onClick={() => createNote()}>Create Note</button>
-          <button onClick={() => deleteNote()}>Delete Note</button>        
+          <button onClick={addNote} disabled={loading}>Create Note</button>
+          <button onClick={removeNote} disabled={loading || activeNoteUnavailable}>Delete Note</button>     
         </div>
       </div>
     </>

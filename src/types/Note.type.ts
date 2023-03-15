@@ -1,9 +1,9 @@
 export type Note = {
-  id: string,
+  id?: string,
   content: string,
   createdDate: Date,
   owner: string,
-  title: string,
+  summary: string,
 }
 
 export default Note

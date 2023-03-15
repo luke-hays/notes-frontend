@@ -1,105 +1,99 @@
-import { createContext, useContext } from "react"
+import { createContext, useContext, useRef } from "react"
 import { useState, useEffect } from "react"
 import Note from "../types/Note.type"
-import { v4 as uuidv4 } from 'uuid'
-import * as request from "../apis/notes"
+import {getNotes, createNote, updateNote, deleteNote} from "../apis/notes"
 
 let NotesContext = createContext({} as any)
 
 const NotesProvider = ({children}: {children: any}) => {
   const [notes, setNotes] = useState<Array<Note>>([])
   const [activeNote, setActiveNote] = useState<Note | null>(null)
-  const [pendingRequests, setPendingRequests] = useState(new Set())
+  const [loading, setLoading] = useState(false)
+  const [updatingNote, setUpdatingNote] = useState(false)
+
+  const fetchedRef = useRef(false)
 
   useEffect(() => {
-    let note = localStorage.getItem('activeNote')
-    if (note) setActiveNote(JSON.parse(note))
+    if (fetchedRef.current) return;
 
-    let collection = localStorage.getItem('notes')
-    if (collection) {
-      setNotes([...JSON.parse(collection)])
-    } else {
-      localStorage.setItem('notes', JSON.stringify([]))
+    fetchedRef.current = true;
+
+    const getAllNotes = async () => {
+      setLoading(true)
+      const response = await getNotes()
+      setNotes(response.data.content)
+      setLoading(false)
     }
+
+    getAllNotes()
   }, [])
 
-  const addPendingRequest = (key: string) => {
-    let requests = new Set(pendingRequests)
-    pendingRequests.add(key)
-    setPendingRequests(requests)
-  }
-  
-  const removePendingRequest = (key: string) => {
-    let requests = new Set(pendingRequests)
-    pendingRequests.delete(key)
-    setPendingRequests(requests)
+  const modifyNote = async (content: string) => {
+    if (!activeNote) return
+    if (activeNote?.content === content) return
+
+    setUpdatingNote(true)
+    const newNote = {...activeNote, content}
+    let result = await updateNote(newNote)
+    if (result) {
+      console.log(result)
+      setActiveNote(newNote)
+    } else {
+      // Error implementation here
+    }
+    setUpdatingNote(false)
   }
 
-  const sendRequest = async (key: string, request: any) => {
-    addPendingRequest(key)
-    await request()
-    removePendingRequest(key)
-  }
-
-  const getNote = async (noteID: string) => {
-    await sendRequest('getNote', () => request.getNote(noteID))
-  }
-
-  const getAllNotes = async () => {
-    await sendRequest('getNotes', () => request.getNotes(''))
-  }
-
-  const updateNote = async (noteID: string, data: any) => {
-    await sendRequest('updateNote', () => request.updateNote('', null))
-  }
-
-  const createNote = async () => {
+  const addNote = async () => {
     const newNote: Note = {
-      id: uuidv4(),
       content: '',
       createdDate: new Date(),
       owner: 'user',
-      title: ''
+      summary: ''
     }
 
-    await sendRequest('createNote', () => request.createNote(newNote))
+    let result = await createNote(newNote)
 
-    const newNotes = [...notes, newNote]
+    if (result) {
+      const newNotes = [...notes, result.data.content[0]]
 
-    setActiveNote(newNote)
-    setNotes(newNotes)
-
-    localStorage.setItem('activeNote', JSON.stringify(newNote))
-    localStorage.setItem('notes', JSON.stringify(newNotes))
+      setActiveNote(newNote)
+      setNotes(newNotes)
+  
+      localStorage.setItem('activeNote', result.data.content[0].id.toString())
+    } else {
+      // Error implementation here
+    }
   }
 
-  const deleteNote = async () => {
+  const removeNote = async () => {
     if (!activeNote) return
     
-    await sendRequest('deleteNote', () => request.deleteNote(activeNote.id))
+    let result = await deleteNote(activeNote)
 
-    const newNotes = [...notes]
-    newNotes.splice(notes.findIndex(note => note.id === activeNote?.id), 1)
-
-    setActiveNote(null)
-    setNotes(newNotes)
-
-    localStorage.removeItem('activeNote')
-    localStorage.setItem('notes', JSON.stringify(newNotes))
+    if (result) {
+      const newNotes = [...notes]
+      newNotes.splice(notes.findIndex(note => note.id === activeNote?.id), 1)
+  
+      setActiveNote(null)
+      setNotes(newNotes)
+  
+      localStorage.removeItem('activeNote')
+    } else {
+      // Error implementation here
+    }
   }
 
   const contextValue = {
-    note: activeNote,
+    activeNote,
     setActiveNote,
     notes,
-    getNote,
-    getAllNotes,
-    updateNote,
-    createNote,
-    deleteNote,
-    setNote: setActiveNote,
-    setNotes
-
+    setNotes,
+    modifyNote,
+    addNote,
+    removeNote,
+    loading,
+    updatingNote
   }
 
   return (
